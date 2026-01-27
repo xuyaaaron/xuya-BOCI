@@ -37,9 +37,9 @@ export class WindDataService {
           return finalResult;
         }
       } catch (e) {
-        console.error("Failed to fetch Wind 2X data", e);
+        console.warn("Failed to fetch Wind 2X data locally, trying static...", e);
       }
-      return { data: [], metrics: null as any };
+      return this.getStaticData('erp_2x'); // Fallback to static data
     }
 
     // 处理 BOCIASI 指标的路由
@@ -64,9 +64,9 @@ export class WindDataService {
           return finalResult;
         }
       } catch (e) {
-        console.error(`Failed to fetch BOCIASI data for ${normalizedTab}`, e);
+        console.warn(`Local backend unreachable for ${normalizedTab}, trying static data...`);
       }
-      return { data: [], metrics: null as any };
+      return this.getStaticData(normalizedTab);
     }
 
     try {
@@ -80,7 +80,7 @@ export class WindDataService {
       console.warn("Wind Bridge offline, using mock data");
     }
 
-    return this.getGeneralMockData(tab);
+    return this.getStaticData(tab);
   }
 
   private static generateDraftData(): { data: any[], metrics: IndicatorMetrics } {
@@ -129,16 +129,49 @@ export class WindDataService {
     };
   }
 
-  private static getGeneralMockData(tab: string): { data: any[], metrics: IndicatorMetrics } {
-    const data = [];
-    for (let i = 0; i < 50; i++) {
-      const d = new Date(); d.setDate(new Date().getDate() - i);
-      const ds = d.toISOString().split('T')[0];
-      data.push({ date: ds, value: 20 + Math.random() * 10 });
+  private static async getStaticData(indicatorKey: string): Promise<{ data: any[], metrics: IndicatorMetrics }> {
+    try {
+      // 在GitHub Pages上，静态文件位于根路径（或base路径下）
+      // 使用 import.meta.env.BASE_URL 确保路径正确
+      const baseUrl = import.meta.env.BASE_URL;
+      const jsonPath = `${baseUrl}static_data.json`.replace('//', '/');
+
+      const response = await fetch(jsonPath);
+      if (!response.ok) {
+        throw new Error('Static data not found');
+      }
+
+      const fullData = await response.json();
+
+      // 如果是 Wind 2X ERP
+      if (indicatorKey === 'erp_2x') {
+        const erpData = fullData.wind_2x_erp;
+        if (!erpData) return { data: [], metrics: null as any };
+
+        const dataPoints = erpData.data_points || [];
+        dataPoints.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return {
+          data: dataPoints,
+          metrics: erpData.metrics
+        };
+      }
+
+      // 如果是 BOCIASI
+      const bociasiData = fullData.bociasi?.[indicatorKey];
+      if (bociasiData) {
+        const dataPoints = bociasiData.data_points || [];
+        dataPoints.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return {
+          data: dataPoints,
+          metrics: bociasiData.metrics
+        };
+      }
+
+    } catch (e) {
+      console.warn("Failed to load static snapshot", e);
     }
-    return {
-      data,
-      metrics: { current_value: "25.4", percentile_5y: "45%", change_weekly: "0.0%", status: 'Neutral', description: "数据正常。" }
-    };
+
+    // Last resort: algorithmic mock data
+    return this.generateDraftData();
   }
 }
