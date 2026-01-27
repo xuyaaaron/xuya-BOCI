@@ -4,6 +4,10 @@
 """
 import sys
 import logging
+import os
+import json
+import asyncio
+import subprocess
 from datetime import datetime
 from data_fetcher import WindDataFetcher
 from excel_handler import ExcelHandler
@@ -14,176 +18,170 @@ logging.basicConfig(
     level=logging.INFO,
     format=config.LOG_FORMAT,
     handlers=[
-        logging.FileHandler(config. get_log_filename(), encoding='utf-8'),
+        logging.FileHandler(config.get_log_filename(), encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
 
-def main(test_mode=False):
+def run_git_sync(commit_message):
+    """执行Git同步：add -> commit -> push"""
+    try:
+        logging.info("开始Git同步...")
+        repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        
+        # git add
+        subprocess.run(["git", "add", "."], cwd=repo_dir, check=True)
+        
+        # git commit
+        subprocess.run(["git", "commit", "-m", commit_message], cwd=repo_dir, check=True)
+        
+        # git push
+        subprocess.run(["git", "push"], cwd=repo_dir, check=True)
+        
+        logging.info("Git同步完成")
+        return True
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Git操作失败: {e}")
+        return False
+
+async def generate_static_snapshot():
+    """生成静态数据快照 (复用 generate_static.py 的逻辑)"""
+    try:
+        logging.info("开始生成静态数据快照...")
+        
+        # 延迟导入以避免循环依赖
+        # 注意：这里需要确保 sys.path 包含 backend 目录
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
+        from app.services.bociasi_service import bociasi_service
+        from app.services.wind2x_service import wind2x_service
+        
+        # 刷新缓存（确保读取最新的Excel）
+        await bociasi_service.warm_cache()
+        await wind2x_service.warm_cache()
+        
+        static_data = {
+            "generated_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "bociasi": {},
+            "wind_2x_erp": {}
+        }
+
+        # 1. 获取 BOCIASI 所有指标数据
+        indicators = [
+            'overview', 'equity_premium', 'eb_position_gap', 'eb_yield_gap',
+            'margin_balance', 'slow_line', 'ma20', 'turnover',
+            'up_down_ratio', 'rsi', 'fast_line'
+        ]
+        
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = "2016-01-01"
+
+        for ind_id in indicators:
+            data = await bociasi_service.fetch_indicator_data(ind_id, start_date, end_date)
+            static_data["bociasi"][ind_id] = data.dict()
+
+        # 2. 获取 Wind 2X ERP 数据
+        data = await wind2x_service.fetch_indicator_data("erp_2x", "2005-01-01", end_date)
+        static_data["wind_2x_erp"] = data.dict()
+
+        # 3. 写入文件
+        repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        output_path = os.path.join(repo_dir, 'public', 'static_data.json')
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(static_data, f, ensure_ascii=False)
+            
+        logging.info(f"静态数据已保存至: {output_path}")
+        return True
+        
+    except Exception as e:
+        logging.error(f"生成静态快照失败: {str(e)}", exc_info=True)
+        return False
+
+def run_daily_update(test_mode=False):
     """
-    主函数 - 执行Excel数据更新
-    
-    参数:
-        test_mode: 测试模式，不实际保存Excel
+    执行每日更新流程：
+    1. 连接Wind更新Excel
+    2. 生成静态数据快照
+    3. 推送到GitHub
     """
     print("=" * 80)
-    print("🚀 Excel 数据自动更新程序")
+    print(f"🚀 开始执行每日自动更新流程: {datetime.now()}")
     print("=" * 80)
-    print(f"开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print()
     
+    updated_count = 0
     fetcher = None
-    handler = None
     
     try:
-        # 1. 初始化Excel处理器
-        logging.info("初始化Excel处理器...")
+        # --- 步骤1: 更新Excel ---
         handler = ExcelHandler()
         handler.read_excel()
-        handler.print_summary()
-        
-        # 2. 获取最后更新日期
         last_date = handler.get_last_date()
-        logging.info(f"Excel最后更新日期: {last_date}")
-        print()
         
-        # 3. 连接Wind API
         logging.info("连接Wind API...")
-        print("📡 正在连接 Wind API...")
         fetcher = WindDataFetcher()
         fetcher.connect()
-        print("✅ Wind API 已连接")
-        print()
-        
-        # 4. 获取需要更新的交易日列表
-        logging.info("查询需要更新的交易日...")
-        print("📅 正在查询需要更新的交易日...")
         
         dates_to_update = fetcher.get_trade_dates_after(last_date)
         
         if not dates_to_update:
-            print("✅ 数据已是最新，无需更新")
-            logging.info("数据已是最新，无需更新")
-            return
+            logging.info("Excel数据已是最新")
+            print("✅ Excel数据已是最新")
+        else:
+            print(f"发现 {len(dates_to_update)} 个交易日需要更新")
+            
+            # 备份
+            if not test_mode:
+                handler.backup_excel()
+            
+            # 逐日更新
+            for date in dates_to_update:
+                logging.info(f"正在获取 {date} 的数据...")
+                try:
+                    data = fetcher.fetch_market_data(date)
+                    is_valid, _, msg = handler.validate_data(data)
+                    
+                    if is_valid:
+                        handler.append_data(data)
+                        updated_count += 1
+                        print(f"✅ {date} 数据已添加")
+                    else:
+                        logging.warning(f"{date} 数据无效: {msg}")
+                except Exception as e:
+                    logging.error(f"处理 {date} 失败: {e}")
+            
+            # 保存
+            if updated_count > 0 and not test_mode:
+                handler.save_excel()
+                print(f"✅ 成功更新 {updated_count} 条记录并保存")
         
-        print(f"发现 {len(dates_to_update)} 个交易日需要更新:")
-        for date in dates_to_update:
-            print(f"  - {date}")
-        print()
+        # --- 步骤2: 生成静态快照 ---
+        # 即使Excel没有更新，也可以重新生成快照以更新 'generated_at' 时间戳
+        print("📸 正在生成静态数据快照...")
+        # 由于是在同步函数中调用异步代码，需要使用 asyncio.run
+        asyncio.run(generate_static_snapshot())
         
-        # 5. 备份Excel文件
+        # --- 步骤3: 推送GitHub ---
         if not test_mode:
-            logging.info("备份Excel文件...")
-            print("💾 正在备份Excel文件...")
-            handler.backup_excel()
-            print()
-        
-        # 6. 逐日获取数据并更新
-        updated_count = 0
-        failed_dates = []
-        
-        for i, date in enumerate(dates_to_update, 1):
-            print("=" * 80)
-            print(f"📊 [{i}/{len(dates_to_update)}] 正在处理 {date}...")
-            print("=" * 80)
-            logging.info(f"正在获取 {date} 的数据...")
-            
-            try:
-                # 获取数据
-                data = fetcher.fetch_market_data(date)
+            print("☁️ 正在同步到 GitHub...")
+            msg = f"Auto update: {datetime.now().strftime('%Y-%m-%d')} (Updated {updated_count} records)"
+            if run_git_sync(msg):
+                print("✅ GitHub同步成功")
+            else:
+                print("❌ GitHub同步失败")
                 
-                # 验证数据
-                is_valid, missing_fields, message = handler.validate_data(data)
-                
-                if not is_valid:
-                    print(f"⚠️ 数据验证失败: {message}")
-                    logging.warning(f"{date} 数据验证失败: {message}")
-                    failed_dates.append((date, message))
-                    continue
-                
-                # 显示获取的数据
-                print(f"\n✅ 数据获取成功:")
-                print(f"  日期: {data['date']}")
-                print(f"  收盘价: {data['close']}")
-                print(f"  换手率: {data['turnover']}%")
-                print(f"  股息率: {data['dividend']}%")
-                print(f"  融资余额: {data['margin']:.2f}亿元" if data['margin'] else "  融资余额: N/A")
-                print(f"  上涨/平盘/下跌: {data['rise']}/{data['flat']}/{data['fall']}")
-                print(f"  涨停/跌停: {data['limit_up']}/{data['limit_down']}")
-                print(f"  RSI(20): {data['rsi']}")
-                print(f"  MA20宽度: {data['ma20']}%" if data['ma20'] else "  MA20宽度: N/A")
-                print(f"  国债收益率: {data['treasury']}%")
-                
-                # 追加到DataFrame
-                handler.append_data(data)
-                updated_count += 1
-                logging.info(f"{date} 数据已添加到DataFrame")
-                
-                print(f"\n✅ {date} 数据已添加")
-                
-            except Exception as e:
-                error_msg = f"处理 {date} 时出错: {str(e)}"
-                print(f"❌ {error_msg}")
-                logging.error(error_msg, exc_info=True)
-                failed_dates.append((date, str(e)))
-            
-            print()
-        
-        # 7. 保存Excel文件
-        if updated_count > 0 and not test_mode:
-            print("=" * 80)
-            print("💾 正在保存Excel文件...")
-            logging.info("保存Excel文件...")
-            
-            handler.save_excel()
-            
-            print("✅ Excel文件已保存")
-            logging.info("Excel文件保存成功")
-        
-        # 8. 输出总结
-        print()
-        print("=" * 80)
-        print("📈 更新完成总结")
-        print("=" * 80)
-        print(f"  成功更新: {updated_count} 个交易日")
-        print(f"  失败: {len(failed_dates)} 个交易日")
-        
-        if failed_dates:
-            print("\n  失败详情:")
-            for date, reason in failed_dates:
-                print(f"    - {date}: {reason}")
-        
-        if test_mode:
-            print("\n  ⚠️ 测试模式：未实际保存Excel文件")
-        
-        print()
-        handler.print_summary()
-        
-        logging.info(f"更新完成 - 成功: {updated_count}, 失败: {len(failed_dates)}")
-        
     except Exception as e:
-        error_msg = f"程序执行失败: {str(e)}"
-        print(f"\n❌ {error_msg}")
-        logging.error(error_msg, exc_info=True)
-        sys.exit(1)
-    
+        logging.error(f"更新流程异常: {e}", exc_info=True)
+        print(f"❌ 错误: {e}")
     finally:
-        # 断开Wind连接
         if fetcher:
             fetcher.disconnect()
-            print("🔌 Wind API 连接已关闭")
-        
-        print()
-        print("=" * 80)
-        print(f"结束时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 80)
+        print("=" * 80) 
 
+def main(test_mode=False):
+    """脚本入口点"""
+    run_daily_update(test_mode)
 
 if __name__ == "__main__":
-    # 检查命令行参数
     test_mode = '--test' in sys.argv
-    
-    if test_mode:
-        print("⚠️ 运行在测试模式\n")
-    
     main(test_mode=test_mode)

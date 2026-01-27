@@ -34,10 +34,26 @@ app.add_middleware(
 )
 
 # 注册路由
+# 注册路由
 app.include_router(modules_router, prefix=settings.API_PREFIX)
 app.include_router(bociasi_router, prefix=settings.API_PREFIX)
 app.include_router(wind2x_router, prefix=settings.API_PREFIX)
 
+# --- 任务调度配置 ---
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+from . import update_excel_wrapper  # Helper module we need to create to bridge imports
+
+scheduler = BackgroundScheduler()
+
+@app.post("/api/admin/update")
+async def trigger_update():
+    """手动触发数据更新（仅限本地环境使用）"""
+    # Run in a separate thread to not block API
+    import threading
+    thread = threading.Thread(target=update_excel_wrapper.run_update)
+    thread.start()
+    return {"status": "started", "message": "后台更新任务已启动，请稍候..."}
 
 @app.get("/")
 async def root():
@@ -61,6 +77,13 @@ async def startup_event():
     """应用启动事件"""
     logger.info(f"{settings.APP_NAME} v{settings.APP_VERSION} 启动成功")
     logger.info(f"API文档: http://localhost:8000/api/docs")
+    
+    # 启动调度器
+    # 每天 18:00 自动运行更新
+    trigger = CronTrigger(hour=18, minute=0, timezone='Asia/Shanghai')
+    scheduler.add_job(update_excel_wrapper.run_update, trigger=trigger, id='daily_update')
+    scheduler.start()
+    logger.info("📅 每日自动更新任务已设定 (18:00 CST)")
     
     # 异步预热数据
     from .services.bociasi_service import bociasi_service

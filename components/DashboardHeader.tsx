@@ -39,14 +39,38 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
             <span>联系电话：王君/徐亚 13636405358</span>
           </div>
           <button
-            onClick={() => {
-              const confirmUpdate = window.confirm("是否触发全量数据更新？\n(这将会运行 WIND API 脚本并更新 Excel 底稿)");
+            onClick={async () => {
+              const confirmUpdate = window.confirm(
+                "是否触发全量数据更新？\n\n" +
+                "注意：此功能仅在您本地电脑上运行后端服务时有效。\n" +
+                "步骤：\n" +
+                "1. 后端将调用 Wind API 获取最新数据\n" +
+                "2. 更新 Excel 底稿\n" +
+                "3. 生成静态快照并推送到 GitHub\n\n" +
+                "确定要继续吗？"
+              );
+
               if (confirmUpdate) {
+                try {
+                  // 尝试调用本地后端
+                  const response = await fetch('http://127.0.0.1:8000/api/admin/update', {
+                    method: 'POST'
+                  });
+
+                  if (response.ok) {
+                    alert("✅ 已成功触发后台更新任务！\n\n程序正在后台运行：\n1. 更新Excel\n2. 同步到GitHub\n\n请等待约2-3分钟后，GitHub会自动重新部署网页。");
+                  } else {
+                    throw new Error("后端返回错误");
+                  }
+                } catch (e) {
+                  alert("❌ 无法连接到本地后端服务。\n\n请确认您已在本地电脑启动了 Python 后端程序 (python -m uvicorn app.main:app)。\n\n如果您正在 GitHub Pages 上浏览此页面，请注意：网页无法直接控制您的电脑，必须在本地操作。");
+                }
+
                 WindDataService.clearCache();
-                alert("已触发后端更新任务并清除缓存。底稿正在同步中，请稍后刷新。");
               }
             }}
             className="flex items-center gap-1.5 text-gray-400 hover:text-blue-500 transition-all active:scale-95"
+            title="仅限本地使用：调用Wind终端更新数据并推送GitHub"
           >
             <span className="material-symbols-outlined text-[14px]">refresh</span>
             <span className="border-b border-transparent hover:border-blue-200">点击更新</span>
