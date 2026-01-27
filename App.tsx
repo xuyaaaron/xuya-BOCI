@@ -57,7 +57,7 @@ const App: React.FC = () => {
         indicatorSubtitle={headerData.subtitle}
       />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-6 pb-8 pt-0">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-6 pb-8 pt-0">
 
         {/* 动态渲染子板块 */}
         <div className="relative">
