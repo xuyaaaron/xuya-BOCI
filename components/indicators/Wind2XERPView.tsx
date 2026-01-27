@@ -129,11 +129,18 @@ export const Wind2XERPView: React.FC<{ onHeaderDataUpdate: (data: any) => void }
               <Legend verticalAlign="top" align="right" height={36} wrapperStyle={{ fontSize: '11px', paddingBottom: '20px' }} />
 
               <Area yAxisId="left" type="monotone" dataKey="erp" stroke="#dc2626" strokeWidth={2} fill="url(#erpGrad)" name="ERP" dot={false} isAnimationActive={false} />
-              <Line yAxisId="left" type="monotone" dataKey="avg" stroke="#475569" strokeDasharray="3 3" dot={false} strokeWidth={1} name="S Band" connectNulls={true} />
-              <Line yAxisId="left" type="monotone" dataKey="sd1_up" stroke="#a855f7" strokeDasharray="3 3" dot={false} strokeWidth={1} name="U Band" connectNulls={true} />
-              <Line yAxisId="left" type="monotone" dataKey="sd1_low" stroke="#a855f7" strokeDasharray="3 3" dot={false} strokeWidth={1} name="V Band" connectNulls={true} />
-              <Line yAxisId="left" type="monotone" dataKey="sd2_up" stroke="#a855f7" strokeDasharray="3 3" dot={false} strokeWidth={1} name="W Band" connectNulls={true} />
-              <Line yAxisId="left" type="monotone" dataKey="sd2_low" stroke="#a855f7" strokeDasharray="3 3" dot={false} strokeWidth={1} name="X Band" connectNulls={true} />
+              <Line yAxisId="left" type="monotone" dataKey="avg" stroke="#475569" strokeDasharray="3 3" dot={false} strokeWidth={1} name="3年滚动均值" connectNulls={true} />
+
+              {/* +1X / -1X: Purple Dashed */}
+              <Line yAxisId="left" type="monotone" dataKey="sd1_up" stroke="#a855f7" strokeDasharray="3 3" dot={false} strokeWidth={1} name="+1X" connectNulls={true} />
+              <Line yAxisId="left" type="monotone" dataKey="sd1_low" stroke="#a855f7" strokeDasharray="3 3" dot={false} strokeWidth={1} name="-1X" connectNulls={true} />
+
+              {/* +2X: Yellow Dashed */}
+              <Line yAxisId="left" type="monotone" dataKey="sd2_up" stroke="#fbbf24" strokeDasharray="5 5" dot={false} strokeWidth={2} name="+2X" connectNulls={true} />
+
+              {/* -2X: Green Dashed */}
+              <Line yAxisId="left" type="monotone" dataKey="sd2_low" stroke="#16a34a" strokeDasharray="5 5" dot={false} strokeWidth={2} name="-2X" connectNulls={true} />
+
               <Line yAxisId="right" type="monotone" dataKey="close" stroke="#94a3b8" strokeWidth={1} strokeOpacity={0.4} dot={false} name="万得全A" isAnimationActive={false} connectNulls={true} />
 
               {latestRow && (
