@@ -22,7 +22,7 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
     <header className="bg-white sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-6 h-[64px] flex items-end justify-between pb-3">
         <div className="flex items-center gap-4">
-          <img src="/boci-logo.png" alt="BOCI Logo" className="w-8 h-8 object-contain mb-0.5" />
+          <img src={`${import.meta.env.BASE_URL}boci-logo.png`} alt="BOCI Logo" className="w-8 h-8 object-contain mb-0.5" />
           <div className="flex flex-col">
             <div className="flex items-center text-[#333333]">
               <h1 className="text-xl font-bold tracking-tight leading-none">中银策略</h1>

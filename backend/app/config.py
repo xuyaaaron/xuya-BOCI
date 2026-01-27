@@ -20,6 +20,7 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
+        "https://xuyaaaron.github.io",
     ]
     # 生产环境需要添加GitHub Pages域名
     # 例如：CORS_ORIGINS = ["https://yourusername.github.io"]
