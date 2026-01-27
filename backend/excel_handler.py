@@ -324,6 +324,44 @@ class ExcelHandler:
         except Exception as e:
             print(f"  ⚠️ 清理备份文件时出错: {str(e)}")
     
+    
+    def recalculate_formulas(self):
+        """
+        调用Excel程序打开文件并强制计算公式
+        """
+        import win32com.client
+        import pythoncom
+        import os
+        
+        print("📊 正在启动Excel重新计算公式...")
+        pythoncom.CoInitialize()
+        
+        excel = None
+        wb = None
+        try:
+            excel = win32com.client.DispatchEx("Excel.Application")
+            excel.Visible = False
+            excel.DisplayAlerts = False
+            
+            abs_path = os.path.abspath(self.excel_path)
+            wb = excel.Workbooks.Open(abs_path)
+            
+            excel.Calculate()
+            wb.Save()
+            print("   ✅ 公式重算完成并保存")
+            
+            wb.Close()
+            return True
+            
+        except Exception as e:
+            print(f"   ⚠️ Excel重算失败: {str(e)}")
+            return False
+        finally:
+            if excel:
+                try: excel.Quit()
+                except: pass
+            pythoncom.CoUninitialize()
+
     def validate_data(self, data_dict):
         """
         验证数据的完整性

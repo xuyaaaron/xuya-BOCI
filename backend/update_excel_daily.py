@@ -172,6 +172,9 @@ def run_daily_update(test_mode=False):
             if updated_count > 0 and not test_mode:
                 handler.save_excel()
                 print(f"✅ 成功更新 {updated_count} 条记录并保存")
+                
+                # 重新计算公式
+                handler.recalculate_formulas()
         
         # --- 步骤2: 生成静态快照 ---
         # 即使Excel没有更新，也可以重新生成快照以更新 'generated_at' 时间戳

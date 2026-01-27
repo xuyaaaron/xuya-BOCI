@@ -136,7 +136,8 @@ export class WindDataService {
       const baseUrl = import.meta.env.BASE_URL;
       const jsonPath = `${baseUrl}static_data.json`.replace('//', '/');
 
-      const response = await fetch(jsonPath);
+      // 添加时间戳防止浏览器缓存过期的json文件
+      const response = await fetch(`${jsonPath}?t=${Date.now()}`);
       if (!response.ok) {
         throw new Error('Static data not found');
       }
