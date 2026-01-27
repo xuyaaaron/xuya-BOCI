@@ -44,8 +44,8 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
             onClick={() => alert("联系电话：王君/徐亚 13636405358")}
             title="联系我们"
           >
-            <span className="material-symbols-outlined text-[20px] md:text-[18px]">call</span>
-            <span className="hidden md:inline text-[11px] font-medium">联系方式</span>
+            <span className="material-symbols-outlined text-[18px]">call</span>
+            <span className="text-[11px] font-medium">联系方式</span>
           </button>
 
           {/* Update Button */}
@@ -76,8 +76,8 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
             className="flex items-center gap-1.5 text-gray-500 hover:text-blue-600 transition-all active:scale-95"
             title="更新数据 (仅限本地)"
           >
-            <span className="material-symbols-outlined text-[20px] md:text-[18px]">refresh</span>
-            <span className="hidden md:inline text-[11px] font-medium border-b border-transparent hover:border-blue-200">点击更新</span>
+            <span className="material-symbols-outlined text-[18px]">refresh</span>
+            <span className="text-[11px] font-medium border-b border-transparent hover:border-blue-200">点击更新</span>
           </button>
         </div>
       </div>
