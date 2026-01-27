@@ -1,0 +1,68 @@
+﻿node.exe : [31m鉁?[39m Build failed in
+ 17ms
+所在位置 行:1 字符: 1
++ & "C:\Program Files\nodejs/node.exe"
+ "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpec 
+   ified: ([31m鉁?[39m Build failed   
+  in 17ms:String) [], RemoteExcepti   
+ on
+    + FullyQualifiedErrorId : NativeC 
+   ommandError
+ 
+[31merror during build:
+[31m[vite:build-html] Unable to parse
+ HTML; parse5 error code end-tag-witho
+ut-matching-open-element
+ at C:/Users/xuyaa/Desktop/chengxu/2X/
+index.html:36:5
+34 |      </style>
+35 |  
+36 |      </script>
+   |      ^^^^^^^^^
+37 |  </head>
+38 |  [31m
+file: [36mC:/Users/xuyaa/Desktop/chen
+gxu/2X/index.html[31m
+    at handleParseError (file:///C:/Us
+ers/xuyaa/Desktop/chengxu/2X/node_modu
+les/vite/dist/node/chunks/dep-D4NMHUTW
+.js:36202:9)
+    at Parser.onParseError (file:///C:
+/Users/xuyaa/Desktop/chengxu/2X/node_m
+odules/vite/dist/node/chunks/dep-D4NMH
+UTW.js:36115:7)
+    at Parser._err (file:///C:/Users/x
+uyaa/Desktop/chengxu/2X/node_modules/v
+ite/dist/node/chunks/dep-CvfTChi5.js:5
+133:14)
+    at endTagInHead (file:///C:/Users/
+xuyaa/Desktop/chengxu/2X/node_modules/
+vite/dist/node/chunks/dep-CvfTChi5.js:
+6441:15)
+    at Parser._endTagOutsideForeignCon
+tent (file:///C:/Users/xuyaa/Desktop/c
+hengxu/2X/node_modules/vite/dist/node/
+chunks/dep-CvfTChi5.js:5941:17)
+    at Parser.onEndTag (file:///C:/Use
+rs/xuyaa/Desktop/chengxu/2X/node_modul
+es/vite/dist/node/chunks/dep-CvfTChi5.
+js:5922:18)
+    at Tokenizer.emitCurrentTagToken (
+file:///C:/Users/xuyaa/Desktop/chengxu
+/2X/node_modules/vite/dist/node/chunks
+/dep-CvfTChi5.js:1706:26)
+    at Tokenizer._stateTagName (file:/
+//C:/Users/xuyaa/Desktop/chengxu/2X/no
+de_modules/vite/dist/node/chunks/dep-C
+vfTChi5.js:2314:22)
+    at Tokenizer._callState (file:///C
+:/Users/xuyaa/Desktop/chengxu/2X/node_
+modules/vite/dist/node/chunks/dep-CvfT
+Chi5.js:1845:22)
+    at Tokenizer._runParsingLoop (file
+:///C:/Users/xuyaa/Desktop/chengxu/2X/
+node_modules/vite/dist/node/chunks/dep
+-CvfTChi5.js:1537:22)[39m
