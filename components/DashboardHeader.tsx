@@ -20,23 +20,28 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header className="bg-white sticky top-0 z-50 shadow-md">
-      <div className="max-w-7xl mx-auto px-6 h-[64px] flex items-end justify-between pb-3">
-        <div className="flex items-center gap-4">
-          <img src={`${import.meta.env.BASE_URL}boci-logo.png`} alt="BOCI Logo" className="w-8 h-8 object-contain mb-0.5" />
-          <div className="flex flex-col">
-            <div className="flex items-center text-[#333333]">
-              <h1 className="text-xl font-bold tracking-tight leading-none">中银策略</h1>
-              <span className="mx-2 text-gray-300 font-light">|</span>
-              <span className="text-sm font-bold tracking-wider uppercase">BOCI STRATEGY</span>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 h-auto md:h-[64px] flex flex-col md:flex-row md:items-end justify-between pb-3 pt-3 md:pt-0">
+        <div className="flex items-center justify-between w-full md:w-auto mb-3 md:mb-0">
+          <div className="flex items-center gap-4">
+            <img src={`${import.meta.env.BASE_URL}boci-logo.png`} alt="BOCI Logo" className="w-8 h-8 object-contain mb-0.5" />
+            <div className="flex flex-col">
+              <div className="flex items-center text-[#333333]">
+                <h1 className="text-xl font-bold tracking-tight leading-none">中银策略</h1>
+                <span className="mx-2 text-gray-300 font-light">|</span>
+                <span className="text-sm font-bold tracking-wider uppercase">BOCI STRATEGY</span>
+              </div>
+              <span className="text-[10px] text-gray-400 font-medium tracking-tight mt-0.5">Interesting Datasets</span>
             </div>
-            <span className="text-[10px] text-gray-400 font-medium tracking-tight mt-0.5">Interesting Datasets</span>
           </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 text-[11px] text-gray-400 font-medium mb-0.5">
-          <div className="flex items-center gap-1.5 hover:text-gray-600 transition-colors cursor-default">
+        <div className="flex items-center justify-end w-full md:w-auto gap-4 md:gap-8 text-[11px] text-gray-400 font-medium mb-0.5">
+          <div className="flex items-center gap-1.5 transition-colors cursor-default whitespace-nowrap">
             <span className="material-symbols-outlined text-[14px]">call</span>
-            <span>联系电话：王君/徐亚 13636405358</span>
+            <div className="flex flex-col md:flex-row md:gap-1">
+              <span>联系电话：王君/徐亚</span>
+              <span>13636405358</span>
+            </div>
           </div>
           <button
             onClick={async () => {
@@ -69,7 +74,7 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
                 WindDataService.clearCache();
               }
             }}
-            className="flex items-center gap-1.5 text-gray-400 hover:text-blue-500 transition-all active:scale-95"
+            className="flex items-center gap-1.5 text-gray-400 hover:text-blue-500 transition-all active:scale-95 whitespace-nowrap"
             title="仅限本地使用：调用Wind终端更新数据并推送GitHub"
           >
             <span className="material-symbols-outlined text-[14px]">refresh</span>
@@ -78,12 +83,12 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Main Tabs Line: Fixed 48px */}
-      <div className="h-[48px] max-w-7xl mx-auto px-6">
-        <div className="flex gap-8 h-full border-b border-gray-100">
+      {/* Main Tabs Line */}
+      <div className="h-auto min-h-[48px] max-w-7xl mx-auto px-4 md:px-6">
+        <div className="flex gap-4 md:gap-8 h-full border-b border-gray-100 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveMainTab(MainTab.BOCIASI)}
-            className={`h-full text-sm font-bold transition-all relative ${activeMainTab === MainTab.BOCIASI ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
+            className={`h-[48px] text-sm font-bold transition-all relative whitespace-nowrap flex-shrink-0 ${activeMainTab === MainTab.BOCIASI ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
               }`}
           >
             BOCIASI 情绪指标
@@ -93,7 +98,7 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
           </button>
           <button
             onClick={() => setActiveMainTab(MainTab.WIND_2X_ERP)}
-            className={`h-full text-sm font-bold transition-all relative ${activeMainTab === MainTab.WIND_2X_ERP ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
+            className={`h-[48px] text-sm font-bold transition-all relative whitespace-nowrap flex-shrink-0 ${activeMainTab === MainTab.WIND_2X_ERP ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
               }`}
           >
             万得全A “2X” ERP
@@ -104,16 +109,16 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Sub Tabs Line - ONLY for BOCIASI: Fixed 52px */}
+      {/* Sub Tabs Line - ONLY for BOCIASI */}
       {activeMainTab === MainTab.BOCIASI && (
-        <div className="h-[52px] bg-gray-50/50 border-b border-gray-100">
-          <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
-            <div className="flex flex-wrap items-center gap-3">
+        <div className="h-auto min-h-[52px] bg-gray-50/50 border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-2 md:py-0 h-full flex items-center">
+            <div className="flex flex-nowrap md:flex-wrap items-center gap-3 overflow-x-auto no-scrollbar pb-1 md:pb-0 w-full">
               {SUB_TABS_CONFIG.map((tab) => {
                 const isActive = activeSubTab === tab.id;
 
                 // 基础样式
-                let btnBase = "rounded-full font-bold border transition-all shadow-sm ";
+                let btnBase = "rounded-full font-bold border transition-all shadow-sm whitespace-nowrap flex-shrink-0 ";
                 let btnSize = "px-3 py-1 text-[11px] ";
                 let btnColors = "";
 
@@ -156,7 +161,7 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
                       {tab.label}
                     </button>
                     {tab.id === SubTab.FAST_LINE && (
-                      <div className="w-px h-6 bg-gray-300 mx-4" />
+                      <div className="w-px h-6 bg-gray-300 mx-4 flex-shrink-0" />
                     )}
                   </React.Fragment>
                 );
