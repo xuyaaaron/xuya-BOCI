@@ -23,18 +23,20 @@ class ExcelHandler:
         self.df = None
     
     def read_excel(self):
-        """读取Excel文件（只读取A-P列的数据列）"""
+        """读取Excel文件（只读取A-Q列的数据列）"""
         try:
-            # 只读取前16列（A-P列），不读取公式列（Q-EW）
+            # 只读取前17列（A-Q列），不读取公式列（R-EW）
             self.df = pd.read_excel(
                 self.excel_path, 
                 sheet_name=self.sheet_name,
-                usecols=range(16)  # 只读取列索引0-15（A-P列）
+                usecols=range(17)  # 只读取列索引0-16（A-Q列）
             )
             return True
         except Exception as e:
             raise Exception(f"读取Excel文件失败: {str(e)}")
-    
+
+    # ... (skipping some lines) ...
+
     def get_last_date(self):
         """
         获取Excel中的最后一个日期
@@ -83,13 +85,13 @@ class ExcelHandler:
             self.read_excel()
         
         # 构建新行数据（按照Excel列顺序）
-        # self.df 是读取的前16列（A-P），所以这里必须初始化为16个元素的列表
-        new_row = [None] * 16
+        # self.df 是读取的前17列（A-Q），所以这里必须初始化为17个元素的列表
+        new_row = [None] * 17
         
         for key, col_idx in config.COLUMN_MAPPING.items():
             if key in data_dict:
                 # 确保索引在范围内
-                if col_idx < 16:
+                if col_idx < 17:
                     new_row[col_idx] = data_dict[key]
         
         # 转换为DataFrame并追加
@@ -131,8 +133,8 @@ class ExcelHandler:
                 
                 print(f"   追加第{new_row_in_excel}行...")
                 
-                # 1. 写入A-P列的数据（16列）
-                for col_idx in range(16):
+                # 1. 写入A-Q列的数据（17列）
+                for col_idx in range(17):
                     cell_value = self.df.iloc[row_idx_in_df, col_idx]
                     cell = ws.cell(row=new_row_in_excel, column=col_idx + 1)
                     

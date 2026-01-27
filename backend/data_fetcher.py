@@ -166,6 +166,13 @@ class WindDataFetcher:
             # 7. 计算MA20宽度
             data['ma20'] = self.calculate_ma20_breadth(date)
             
+            # 8. 计算倒数市盈率 (PE Inverse)
+            if data['pe_ttm'] is not None and data['pe_ttm'] != 0:
+                 try:
+                    data['pe_inverse'] = 1 / data['pe_ttm']
+                 except:
+                    data['pe_inverse'] = None
+            
         except Exception as e:
             print(f"⚠️ 获取 {date} 数据时出错: {str(e)}")
         

@@ -35,17 +35,29 @@ WIND_SECTOR_ID = "a001010100000000"  # 万得全A成分股板块ID
 TREASURY_YIELD_CODE = "M1004271"  # 10年期国债收益率
 
 # ========== 数据字段配置 ==========
-# Excel 列映射（从0开始）
 COLUMN_MAPPING = {
-    'date': 0,          # A列：日期
-    'close': 2,         # C列：收盘价
-    'erp': 17,          # R列：ERP
-    'band_s': 18,       # S列
-    # T列跳过
-    'band_u': 20,       # U列
-    'band_v': 21,       # V列
-    'band_w': 22,       # W列
-    'band_x': 23,       # X列
+    'date': 0,          # A: 日期
+    'turnover': 1,      # B: 换手率
+    'close': 2,         # C: 收盘价
+    'equity_fund': 3,   # D: 万得偏股混合型基金指数
+    'bond_fund': 4,     # E: 万得偏债混合型基金指数
+    'dividend': 5,      # F: 股息率TTM
+    'margin': 6,        # G: 融资余额
+    'rise': 7,          # H: 上涨家数
+    'flat': 8,          # I: 平盘家数
+    'fall': 9,          # J: 下跌家数
+    'limit_up': 10,     # K: 涨停家数
+    'limit_down': 11,   # L: 跌停家数
+    'rsi': 12,          # M: RSI(20日)
+    'ma20': 13,         # N: MA20
+    'treasury': 14,     # O: 十年国债利率
+    'pe_ttm': 15,       # P: 市盈率
+    'pe_inverse': 16,   # Q: 市盈率倒数
+    
+    # R列 (17) 及之后是公式自动计算
+    'erp': 17,          # R: ERP
+    'band_s': 18,       # S: 3年均值
+    # ...
 }
 
 # ========== 其他配置 ==========
