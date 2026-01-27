@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // 使用相对路径，适配GitHub Pages
+  base: '/xuya-BOCI/', // 明确指定仓库名作为基础路径
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
