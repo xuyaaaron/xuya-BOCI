@@ -8,12 +8,11 @@ from datetime import datetime
 # Excel 文件路径
 # Excel 文件路径
 # 优先使用项目内的文件（适配 GitHub Actions），如果没有则使用本地桌面路径
-import os
-_LOCAL_EXCEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app', 'data', 'BOCIASIV2.xlsx')
-if os.path.exists(_LOCAL_EXCEL_PATH):
-    EXCEL_PATH = _LOCAL_EXCEL_PATH
-else:
-    EXCEL_PATH = r'C:\Users\xuyaa\Desktop\BOCIASIV2.xlsx'
+# 强制指向桌面文件，确保用户能看到更新
+EXCEL_PATH = r'C:\Users\xuyaa\Desktop\BOCIASIV2.xlsx'
+
+# 备用路径（仅作记录）
+# _LOCAL_EXCEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app', 'data', 'BOCIASIV2.xlsx')
 
 SHEET_NAME = 'A'  # 工作表名称
 

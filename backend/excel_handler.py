@@ -83,11 +83,14 @@ class ExcelHandler:
             self.read_excel()
         
         # 构建新行数据（按照Excel列顺序）
-        new_row = [None] * len(config.COLUMN_MAPPING)
+        # self.df 是读取的前16列（A-P），所以这里必须初始化为16个元素的列表
+        new_row = [None] * 16
         
         for key, col_idx in config.COLUMN_MAPPING.items():
             if key in data_dict:
-                new_row[col_idx] = data_dict[key]
+                # 确保索引在范围内
+                if col_idx < 16:
+                    new_row[col_idx] = data_dict[key]
         
         # 转换为DataFrame并追加
         new_df = pd.DataFrame([new_row], columns=self.df.columns)
