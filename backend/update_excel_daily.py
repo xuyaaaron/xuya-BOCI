@@ -182,6 +182,42 @@ def run_daily_update(test_mode=False):
         # 由于是在同步函数中调用异步代码，需要使用 asyncio.run
         asyncio.run(generate_static_snapshot())
         
+        # --- 步骤2.5: 数据自检 (防丢包机制) ---
+        print("🔍 正在执行数据完整性自检...")
+        try:
+            repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            json_path = os.path.join(repo_dir, 'public', 'static_data.json')
+            
+            with open(json_path, 'r', encoding='utf-8') as f:
+                check_data = json.load(f)
+            
+            # 检查 BOCIASI
+            bociasi_pts = check_data.get('bociasi', {}).get('overview', {}).get('data_points', [])
+            if not bociasi_pts:
+                logging.error("❌ 自检失败: BOCIASI 数据为空！")
+            else:
+                last_pt = bociasi_pts[-1]
+                if last_pt.get('value') is None or last_pt.get('value') == 0:
+                     # 可能是Excel公式没算出来
+                     logging.warning(f"⚠️ 自检警告: BOCIASI 最新一条数据 ({last_pt.get('date')}) 数值为 0 或 None，可能是公式未计算。")
+                else:
+                     print(f"   ✅ BOCIASI 数据检查通过 (最新: {last_pt.get('date')}, 值: {last_pt.get('value')})")
+            
+            # 检查 Wind 2X ERP
+            erp_pts = check_data.get('wind_2x_erp', {}).get('data_points', [])
+            if not erp_pts:
+                logging.error("❌ 自检失败: Wind 2X ERP 数据为空！")
+            else:
+                last_pt = erp_pts[-1]
+                # 2X ERP 也要检查
+                if last_pt.get('value') is None:
+                     logging.warning(f"⚠️ 自检警告: 2X ERP 最新一条数据数值为 None。")
+                else:
+                     print(f"   ✅ Wind 2X ERP 数据检查通过 (最新: {last_pt.get('date')}, 数量: {len(erp_pts)})")
+
+        except Exception as e:
+            logging.error(f"自检过程出错: {e}")
+
         # --- 步骤3: 推送GitHub ---
         if not test_mode:
             print("☁️ 正在同步到 GitHub...")
