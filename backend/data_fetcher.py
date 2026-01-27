@@ -57,6 +57,28 @@ class WindDataFetcher:
         
         return []
     
+    def get_margin_balance(self, date):
+        """单独获取融资余额"""
+        try:
+            # 3. 获取融资余额（使用新API）
+            result_margin = w.wset(
+                "markettradingstatistics(value)",
+                f"exchange=all;startdate={date};enddate={date};frequency=day;sort=asc;field=margin_balance"
+            )
+            if result_margin.ErrorCode == 0 and result_margin.Data:
+                # 返回的数据格式：Data[索引][0]
+                if len(result_margin.Data) > 0 and len(result_margin.Data[0]) > 0:
+                    margin_balance = result_margin.Data[0][0]  # 第一个字段通常是日期，第二个可能是余额
+                    # 如果第一个字段是日期，尝试第二个字段
+                    if len(result_margin.Data) > 1:
+                        margin_balance = result_margin.Data[1][0]
+                    # 转换为亿元
+                    val = margin_balance / 100000000 if margin_balance and margin_balance > 1000000 else margin_balance
+                    return val
+            return None
+        except:
+            return None
+    
     def fetch_market_data(self, date):
         """
         获取指定日期的市场数据

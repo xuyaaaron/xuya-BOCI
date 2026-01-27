@@ -242,6 +242,51 @@ class ExcelHandler:
             return True
         except Exception as e:
             raise Exception(f"保存Excel文件失败: {str(e)}")
+
+    def update_margin_for_date(self, date_str, new_value):
+        """
+        更新指定日期的融资余额
+        
+        参数:
+            date_str: 日期字符串
+            new_value: 新的融资余额值
+        """
+        try:
+            from openpyxl import load_workbook
+            wb = load_workbook(self.excel_path)
+            ws = wb[self.sheet_name]
+            
+            # 从最后一行往上找
+            max_row = ws.max_row
+            target_row = None
+            
+            # 只检查最后20行
+            for r in range(max_row, max(1, max_row-20), -1):
+                cell_date = ws.cell(row=r, column=1).value
+                # 处理日期格式
+                d_str = ""
+                if hasattr(cell_date, 'strftime'):
+                    d_str = cell_date.strftime('%Y-%m-%d')
+                else:
+                    d_str = str(cell_date).split(' ')[0]
+                
+                if d_str == date_str:
+                    target_row = r
+                    break
+            
+            if target_row:
+                 # 融资余额在第7列 (G列)
+                 ws.cell(row=target_row, column=7, value=new_value)
+                 wb.save(self.excel_path)
+                 print(f"   ✅ 已修正 {date_str} 的融资余额为: {new_value}")
+                 return True
+            else:
+                print(f"   ⚠️ 未找到日期 {date_str}，无法更新融资余额")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ 更新融资余额失败: {str(e)}")
+            return False
     
     def backup_excel(self):
         """

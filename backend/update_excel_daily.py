@@ -122,6 +122,24 @@ def run_daily_update(test_mode=False):
         fetcher = WindDataFetcher()
         fetcher.connect()
         
+        # 0. 尝试修复上一日的融资余额
+        # 如果上一日的融资余额是临时填充的（因为当时Wind还没更新），那么今天应该能取到真实值了
+        # 需要将其更新到Excel中，以便今日数据缺失时能使用正确的上一日数据
+        if last_date:
+            print(f"正在检查上一交易日 ({last_date}) 的融资余额...")
+            margin_val = fetcher.get_margin_balance(last_date)
+            
+            # 读取当前Excel中该日期的融资余额进行对比（可选，这里直接更新比较简单）
+            if margin_val:
+                 print(f"获取到 {last_date} 的最新融资余额: {margin_val}")
+                 # 直接更新
+                 if handler.update_margin_for_date(last_date, margin_val):
+                     print(f"✅ 已修正上一日 ({last_date}) 的融资余额")
+                 else:
+                     print(f"⚠️ 修正上一日融资余额失败")
+            else:
+                 print(f"⚠️ 上一日 ({last_date}) 融资余额仍尚未更新 (Wind返回None)")
+        
         dates_to_update = fetcher.get_trade_dates_after(last_date)
         
         if not dates_to_update:
