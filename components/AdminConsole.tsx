@@ -12,18 +12,18 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ show, onClose }) => 
 
     const handleUpdate = async () => {
         if (!password) {
-            setStatus('请输入密码');
+            setStatus('请输入密�?);
             return;
         }
 
         setIsUpdating(true);
-        setStatus('正在同步中，请稍候...');
+        setStatus('正在同步中，请稍�?..');
 
         try {
-            // 注意：需要根据实际部署环境修改 API 地址
+            // 注意：需要根据实际部署环境修�?API 地址
             const apiUrl = window.location.hostname === 'localhost'
                 ? 'http://localhost:5000/api/update'
-                : `http://${window.location.hostname}:5000/api/update`;
+                : `${window.location.protocol}//${window.location.host}/api/update`;
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -36,15 +36,15 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ show, onClose }) => 
             const result = await response.json();
 
             if (response.ok && result.status === 'success') {
-                setStatus('✅ 更新成功！网页将在3秒后刷新...');
+                setStatus('�?更新成功！网页将�?秒后刷新...');
                 setTimeout(() => {
                     window.location.reload();
                 }, 3000);
             } else {
-                setStatus(`❌ 失败：${result.message || '未知错误'}`);
+                setStatus(`�?失败�?{result.message || '未知错误'}`);
             }
         } catch (error) {
-            setStatus('❌ 请求失败，请检查后端 API 是否运行');
+            setStatus('�?请求失败，请检查后�?API 是否运行');
             console.error('Update error:', error);
         } finally {
             setIsUpdating(false);
@@ -77,7 +77,7 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ show, onClose }) => 
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="输入管理员密码"
+                            placeholder="输入管理员密�?
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-boc-red"
                             onKeyPress={(e) => e.key === 'Enter' && handleUpdate()}
                         />
@@ -87,20 +87,20 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ show, onClose }) => 
                         onClick={handleUpdate}
                         disabled={isUpdating}
                         className={`w-full py-2 px-4 rounded-md text-white font-medium ${isUpdating
-                                ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-boc-red hover:bg-red-700'
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-boc-red hover:bg-red-700'
                             }`}
                     >
-                        {isUpdating ? '更新中...' : '同步 GitHub 数据并刷新'}
+                        {isUpdating ? '更新�?..' : '同步 GitHub 数据并刷�?}
                     </button>
 
                     {status && (
                         <div
-                            className={`p-3 rounded-md text-sm ${status.startsWith('✅')
-                                    ? 'bg-green-50 text-green-800'
-                                    : status.startsWith('❌')
-                                        ? 'bg-red-50 text-red-800'
-                                        : 'bg-blue-50 text-blue-800'
+                            className={`p-3 rounded-md text-sm ${status.startsWith('�?)
+                                ? 'bg-green-50 text-green-800'
+                                : status.startsWith('�?)
+                                    ? 'bg-red-50 text-red-800'
+                                    : 'bg-blue-50 text-blue-800'
                                 }`}
                         >
                             {status}
@@ -108,11 +108,11 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ show, onClose }) => 
                     )}
 
                     <div className="text-xs text-gray-500 pt-2 border-t">
-                        <p>功能说明：</p>
+                        <p>功能说明�?/p>
                         <ul className="list-disc list-inside space-y-1 mt-1">
-                            <li>从 GitHub 拉取最新代码</li>
-                            <li>重新生成静态数据快照</li>
-                            <li>自动刷新网页显示最新数据</li>
+                            <li>�?GitHub 拉取最新代�?/li>
+                            <li>重新生成静态数据快�?/li>
+                            <li>自动刷新网页显示最新数�?/li>
                         </ul>
                     </div>
                 </div>
