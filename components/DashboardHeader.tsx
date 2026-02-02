@@ -48,37 +48,6 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
             <span className="text-[11px] font-medium">联系方式</span>
           </button>
 
-          {/* Update Button */}
-          <button
-            onClick={async () => {
-              const confirmUpdate = window.confirm(
-                "是否触发全量数据更新？\n\n" +
-                "注意：此功能仅在您本地电脑上运行后端服务时有效。\n" +
-                "步骤：\n" +
-                "1. 后端将调用 Wind API 获取最新数据\n" +
-                "2. 更新 Excel 底稿\n" +
-                "3. 生成静态快照并推送到 GitHub\n\n" +
-                "确定要继续吗？"
-              );
-
-              if (confirmUpdate) {
-                try {
-                  const response = await fetch('http://127.0.0.1:8000/api/admin/update', { method: 'POST' });
-                  if (response.ok) {
-                    alert("✅ 已成功触发后台更新任务！请等待约2-3分钟后刷新网页。");
-                  } else { throw new Error("Backend Error"); }
-                } catch (e) {
-                  alert("❌ 无法连接到本地后端服务 (http://127.0.0.1:8000)。\n请确保本地Python服务正在运行。");
-                }
-                WindDataService.clearCache();
-              }
-            }}
-            className="flex items-center gap-1.5 text-gray-500 hover:text-blue-600 transition-all active:scale-95"
-            title="更新数据 (仅限本地)"
-          >
-            <span className="material-symbols-outlined text-[18px]">refresh</span>
-            <span className="text-[11px] font-medium border-b border-transparent hover:border-blue-200">点击更新</span>
-          </button>
         </div>
       </div>
 
