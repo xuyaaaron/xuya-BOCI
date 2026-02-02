@@ -9,9 +9,8 @@ echo "开始更新服务器数据"
 echo "时间: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "=========================================="
 
-# 获取项目根目录
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+# 获取项目根目录 (该脚本所在的目录)
+PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$PROJECT_ROOT"
 
