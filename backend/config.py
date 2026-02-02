@@ -2,28 +2,35 @@
 配置模块 - 集中管理所有配置参数
 """
 import os
+import platform
 from datetime import datetime
 
-# ========== 文件路径配置 ==========
-# Excel 文件路径
-# 优先检查本地桌面路径（用户习惯），如果不存在则使用项目内置路径（适配服务器环境）
-_DESKTOP_PATH = r'C:\Users\xuyaa\Desktop\BOCIASIV2.xlsx'
-_INTERNAL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app', 'data', 'BOCIASIV2.xlsx')
+# ========== 文件路径配置 (兼容版) ==========
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+if platform.system() == "Windows":
+    _DESKTOP_PATH = r'C:\Users\xuyaa\Desktop\BOCIASIV2.xlsx'
+    BACKUP_DIR = r'C:\Users\xuyaa\Desktop\chengxu\2X\backend\backups'
+    LOG_DIR = r'C:\Users\xuyaa\Desktop\chengxu\2X\backend\logs'
+else:
+    # Linux 环境下的路径 (适配远程服务器)
+    _DESKTOP_PATH = '/usr/share/nginx/html/xuya-BOCI/BOCIASIV2.xlsx'
+    BACKUP_DIR = os.path.join(BASE_DIR, 'backups')
+    LOG_DIR = os.path.join(BASE_DIR, 'logs')
+
+# 内部备用路径
+_INTERNAL_PATH = os.path.join(BASE_DIR, 'app', 'data', 'BOCIASIV2.xlsx')
+
+# 优先检查桌面/指定路径，否则使用项目内置路径
 if os.path.exists(_DESKTOP_PATH):
     EXCEL_PATH = _DESKTOP_PATH
 else:
     EXCEL_PATH = _INTERNAL_PATH
 
-SHEET_NAME = 'A'  # 工作表名称
-
-# 备份目录
-BACKUP_DIR = r'C:\Users\xuyaa\Desktop\chengxu\2X\backend\backups'
+# 确保必要的目录存在
 os.makedirs(BACKUP_DIR, exist_ok=True)
-
-# 日志目录
-LOG_DIR = r'C:\Users\xuyaa\Desktop\chengxu\2X\backend\logs'
 os.makedirs(LOG_DIR, exist_ok=True)
+SHEET_NAME = 'A'  # 工作表名称
 
 # ========== Wind API 配置 ==========
 # Wind 指数代码

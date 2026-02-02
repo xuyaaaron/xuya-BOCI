@@ -21,9 +21,7 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ show, onClose }) => 
 
         try {
             // 注意：需要根据实际部署环境修改 API 地址
-            const apiUrl = window.location.hostname === 'localhost'
-                ? 'http://localhost:5000/api/update'
-                : `http://${window.location.hostname}:5000/api/update`;
+            const apiUrl = 'http://110.40.129.184:5000/api/update';
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -87,8 +85,8 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ show, onClose }) => 
                         onClick={handleUpdate}
                         disabled={isUpdating}
                         className={`w-full py-2 px-4 rounded-md text-white font-medium ${isUpdating
-                                ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-boc-red hover:bg-red-700'
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-boc-red hover:bg-red-700'
                             }`}
                     >
                         {isUpdating ? '更新中...' : '同步 GitHub 数据并刷新'}
@@ -97,10 +95,10 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({ show, onClose }) => 
                     {status && (
                         <div
                             className={`p-3 rounded-md text-sm ${status.startsWith('✅')
-                                    ? 'bg-green-50 text-green-800'
-                                    : status.startsWith('❌')
-                                        ? 'bg-red-50 text-red-800'
-                                        : 'bg-blue-50 text-blue-800'
+                                ? 'bg-green-50 text-green-800'
+                                : status.startsWith('❌')
+                                    ? 'bg-red-50 text-red-800'
+                                    : 'bg-blue-50 text-blue-800'
                                 }`}
                         >
                             {status}

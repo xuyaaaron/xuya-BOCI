@@ -1,7 +1,7 @@
 
 import { DataPoint, IndicatorMetrics, SubTab } from '../types';
 
-const LOCAL_WIND_BRIDGE_URL = 'http://127.0.0.1:8000/api';
+const LOCAL_WIND_BRIDGE_URL = 'http://110.40.129.184:8000/api';
 
 export class WindDataService {
   private static _cache: Map<string, { data: any[], metrics: IndicatorMetrics, timestamp: number }> = new Map();
