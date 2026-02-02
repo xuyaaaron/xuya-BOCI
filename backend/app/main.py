@@ -76,7 +76,7 @@ async def health_check():
 async def startup_event():
     """应用启动事件"""
     logger.info(f"{settings.APP_NAME} v{settings.APP_VERSION} 启动成功")
-    logger.info(f"API文档: http://localhost:8000/api/docs")
+    logger.info(f"API文档: http://110.40.129.184:8000/api/docs")
     
     # 启动调度器
     # 每天 18:00 自动运行更新
