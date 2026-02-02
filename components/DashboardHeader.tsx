@@ -45,8 +45,7 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
             title="联系我们"
           >
             <span className="material-symbols-outlined text-[18px]">call</span>
-            <span className="text-[11px] font-medium hidden md:inline">联系方式：王君/徐亚 13636405358</span>
-            <span className="text-[11px] font-medium md:hidden">联系</span>
+            <span className="text-[11px] font-medium">联系方式：王君/徐亚 13636405358</span>
           </button>
 
         </div>
