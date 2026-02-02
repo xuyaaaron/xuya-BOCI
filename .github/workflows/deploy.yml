@@ -27,7 +27,7 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: 110.40.129.184
-          username: deploy
+          username: root
           password: ${{ secrets.SERVER_PASSWORD }}
           source: "dist/*"        # 告诉 GitHub 只要传编译出来的 dist 文件夹
           target: "/home/deploy/web/myproject"
