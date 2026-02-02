@@ -28,7 +28,7 @@ jobs:
         with:
           host: 110.40.129.184
           username: deploy
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           source: "dist/*"        # 告诉 GitHub 只要传编译出来的 dist 文件夹
           target: "/home/deploy/web/myproject"
           strip_components: 1     # 去掉 dist 这一层目录，直接把里面的内容放进项目目录
