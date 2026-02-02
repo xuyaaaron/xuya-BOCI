@@ -27,7 +27,7 @@ export class WindDataService {
         if (response.ok) {
           const result = await response.json();
           const backendData = result.data_points || [];
-          backendData.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          // backendData.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
           const metricsRes = await fetch(`${LOCAL_WIND_BRIDGE_URL}/wind_2x_erp/metrics`);
           const metrics = await metricsRes.json();
@@ -54,7 +54,7 @@ export class WindDataService {
         const response = await fetch(`${LOCAL_WIND_BRIDGE_URL}/bociasi/${normalizedTab}/data`);
         if (response.ok) {
           const result = await response.json();
-          result.data_points.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          // result.data_points.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
           const finalResult = {
             data: result.data_points,
