@@ -27,7 +27,7 @@ export const IndicatorWrapper: React.FC<IndicatorWrapperProps> = ({
         {children}
       </div>
 
-      <div className="mt-10 p-6 bg-gray-50 border-l-4 border-gray-900 rounded-r-xl">
+      <div className="mt-4 p-4 bg-gray-50 border-l-4 border-gray-900 rounded-r-xl">
         <p className="text-sm text-gray-600 leading-relaxed font-medium mb-2">
           <span className="font-bold text-gray-900">免责声明：</span>
           仅为客观数据，不代表分析师观点和投资建议，投资信息和风险提示以正式报告为准。本内容向特定客户发布
