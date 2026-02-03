@@ -2,6 +2,7 @@
 import React from 'react';
 import { IndicatorMetrics } from '../../types';
 import { MetricCard } from '../MetricCard';
+import { LoadingSkeleton } from '../LoadingSkeleton';
 
 interface IndicatorWrapperProps {
   title: string;
@@ -19,12 +20,11 @@ export const IndicatorWrapper: React.FC<IndicatorWrapperProps> = ({
     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-8 overflow-visible">
 
       <div className="relative min-h-[450px] w-full border border-gray-50 rounded-xl bg-gray-50/30">
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-700"></div>
-          </div>
+        {loading ? (
+          <LoadingSkeleton type="chart" message="正在加载图表数据..." />
+        ) : (
+          children
         )}
-        {children}
       </div>
 
       <div className="mt-4 p-4 bg-gray-50 border-l-4 border-gray-900 rounded-r-xl">

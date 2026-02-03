@@ -5,10 +5,14 @@ const LOCAL_WIND_BRIDGE_URL = 'http://110.40.129.184:8000/api';
 
 export class WindDataService {
   private static _cache: Map<string, { data: any[], metrics: IndicatorMetrics, timestamp: number }> = new Map();
-  private static CACHE_TTL = 1000 * 60 * 5; // 5分钟前端缓存
+  private static CACHE_TTL = 1000 * 60 * 30; // 延长到30分钟前端缓存（减少重复加载）
+  private static _staticDataCache: any = null; // 全局静态数据缓存
+  private static _staticDataPromise: Promise<any> | null = null; // 防止重复下载
 
   public static clearCache() {
     this._cache.clear();
+    this._staticDataCache = null;
+    this._staticDataPromise = null;
   }
 
   public static async getIndicatorData(tab: SubTab | string): Promise<{ data: any[], metrics: IndicatorMetrics }> {
@@ -17,6 +21,7 @@ export class WindDataService {
     // 检查缓存
     const cached = this._cache.get(normalizedTab);
     if (cached && (Date.now() - cached.timestamp < this.CACHE_TTL)) {
+      console.log(`✓ 使用缓存数据: ${normalizedTab}`);
       return { data: cached.data, metrics: cached.metrics };
     }
 
@@ -27,7 +32,6 @@ export class WindDataService {
         if (response.ok) {
           const result = await response.json();
           const backendData = result.data_points || [];
-          // backendData.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
           const metricsRes = await fetch(`${LOCAL_WIND_BRIDGE_URL}/wind_2x_erp/metrics`);
           const metrics = await metricsRes.json();
@@ -39,7 +43,7 @@ export class WindDataService {
       } catch (e) {
         console.warn("Failed to fetch Wind 2X data locally, trying static...", e);
       }
-      return this.getStaticData('erp_2x'); // Fallback to static data
+      return this.getStaticData('erp_2x');
     }
 
     // 处理 BOCIASI 指标的路由
@@ -54,7 +58,6 @@ export class WindDataService {
         const response = await fetch(`${LOCAL_WIND_BRIDGE_URL}/bociasi/${normalizedTab}/data`);
         if (response.ok) {
           const result = await response.json();
-          // result.data_points.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
           const finalResult = {
             data: result.data_points,
@@ -86,7 +89,7 @@ export class WindDataService {
   private static generateDraftData(): { data: any[], metrics: IndicatorMetrics } {
     const data = [];
     const totalRows = 5117;
-    let currentDate = new Date('2026-01-23T00:00:00+08:00'); // Beijing Time
+    let currentDate = new Date('2026-01-23T00:00:00+08:00');
 
     for (let i = 0; i < totalRows; i++) {
       while (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
@@ -95,10 +98,10 @@ export class WindDataService {
       const dateStr = currentDate.toISOString().split('T')[0];
       let closeVal;
       let erpVal;
-      if (i === 0) { // Row 2: 2026-01-23
+      if (i === 0) {
         closeVal = 6893.11;
         erpVal = 2.28;
-      } else if (i === 1) { // Row 3: 2026-01-22
+      } else if (i === 1) {
         closeVal = 6827.05;
         erpVal = 2.33;
       } else {
@@ -129,20 +132,66 @@ export class WindDataService {
     };
   }
 
+  /**
+   * 优化的静态数据加载 - 使用单例模式避免重复下载
+   */
+  private static async loadFullStaticData(): Promise<any> {
+    // 如果已经有缓存，直接返回
+    if (this._staticDataCache) {
+      console.log("✓ 使用全局静态数据缓存");
+      return this._staticDataCache;
+    }
+
+    // 如果正在下载中，返回同一个Promise（避免重复下载）
+    if (this._staticDataPromise) {
+      console.log("⏳ 等待静态数据下载完成...");
+      return this._staticDataPromise;
+    }
+
+    // 开始下载
+    console.log("📥 开始下载静态数据文件 (25MB)...");
+    const startTime = performance.now();
+
+    this._staticDataPromise = (async () => {
+      try {
+        const baseUrl = import.meta.env.BASE_URL;
+        const jsonPath = `${baseUrl}static_data.json`.replace('//', '/');
+
+        const response = await fetch(jsonPath, {
+          headers: {
+            'Accept-Encoding': 'gzip, deflate, br' // 请求压缩
+          },
+          cache: 'force-cache' // 强制使用浏览器缓存
+        });
+
+        if (!response.ok) {
+          throw new Error('Static data not found');
+        }
+
+        const fullData = await response.json();
+        
+        const endTime = performance.now();
+        const loadTime = ((endTime - startTime) / 1000).toFixed(2);
+        console.log(`✓ 静态数据加载完成，耗时 ${loadTime} 秒`);
+
+        // 缓存到内存
+        this._staticDataCache = fullData;
+        return fullData;
+
+      } catch (e) {
+        console.error("❌ 静态数据加载失败", e);
+        this._staticDataPromise = null; // 失败后清空，允许重试
+        throw e;
+      }
+    })();
+
+    return this._staticDataPromise;
+  }
+
   private static async getStaticData(indicatorKey: string): Promise<{ data: any[], metrics: IndicatorMetrics }> {
     try {
-      // 在GitHub Pages上，静态文件位于根路径（或base路径下）
-      // 使用 import.meta.env.BASE_URL 确保路径正确
-      const baseUrl = import.meta.env.BASE_URL;
-      const jsonPath = `${baseUrl}static_data.json`.replace('//', '/');
-
-      // 添加时间戳防止浏览器缓存过期的json文件
-      const response = await fetch(`${jsonPath}?t=${Date.now()}`);
-      if (!response.ok) {
-        throw new Error('Static data not found');
-      }
-
-      const fullData = await response.json();
+      // 使用优化的加载函数
+      const fullData = await this.loadFullStaticData();
 
       // 如果是 Wind 2X ERP
       if (indicatorKey === 'erp_2x') {
@@ -151,10 +200,15 @@ export class WindDataService {
 
         const dataPoints = erpData.data_points || [];
         dataPoints.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        return {
+        
+        const result = {
           data: dataPoints,
           metrics: erpData.metrics
         };
+        
+        // 缓存结果
+        this._cache.set(indicatorKey, { ...result, timestamp: Date.now() });
+        return result;
       }
 
       // 如果是 BOCIASI
@@ -162,10 +216,15 @@ export class WindDataService {
       if (bociasiData) {
         const dataPoints = bociasiData.data_points || [];
         dataPoints.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        return {
+        
+        const result = {
           data: dataPoints,
           metrics: bociasiData.metrics
         };
+        
+        // 缓存结果
+        this._cache.set(indicatorKey, { ...result, timestamp: Date.now() });
+        return result;
       }
 
     } catch (e) {
