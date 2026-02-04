@@ -155,13 +155,15 @@ export class WindDataService {
     this._staticDataPromise = (async () => {
       try {
         const baseUrl = import.meta.env.BASE_URL;
-        const jsonPath = `${baseUrl}static_data.json`.replace('//', '/');
+        // 添加时间戳参数绕过浏览器缓存
+        const timestamp = new Date().getTime();
+        const jsonPath = `${baseUrl}static_data.json?v=${timestamp}`.replace('//', '/');
 
         const response = await fetch(jsonPath, {
           headers: {
             'Accept-Encoding': 'gzip, deflate, br' // 请求压缩
           },
-          cache: 'force-cache' // 强制使用浏览器缓存
+          cache: 'no-cache' // 不使用浏览器缓存，每次都检查更新
         });
 
         if (!response.ok) {
@@ -169,7 +171,7 @@ export class WindDataService {
         }
 
         const fullData = await response.json();
-        
+
         const endTime = performance.now();
         const loadTime = ((endTime - startTime) / 1000).toFixed(2);
         console.log(`✓ 静态数据加载完成，耗时 ${loadTime} 秒`);
@@ -200,12 +202,12 @@ export class WindDataService {
 
         const dataPoints = erpData.data_points || [];
         dataPoints.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
+
         const result = {
           data: dataPoints,
           metrics: erpData.metrics
         };
-        
+
         // 缓存结果
         this._cache.set(indicatorKey, { ...result, timestamp: Date.now() });
         return result;
@@ -216,12 +218,12 @@ export class WindDataService {
       if (bociasiData) {
         const dataPoints = bociasiData.data_points || [];
         dataPoints.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
+
         const result = {
           data: dataPoints,
           metrics: bociasiData.metrics
         };
-        
+
         // 缓存结果
         this._cache.set(indicatorKey, { ...result, timestamp: Date.now() });
         return result;
