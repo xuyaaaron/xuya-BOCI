@@ -24,7 +24,7 @@ logging.basicConfig(
 )
 
 def run_git_sync(commit_message):
-    """执行Git同步：add -> commit -> push"""
+    """执行Git同步：add -> commit -> pull -> push"""
     try:
         logging.info("开始Git同步...")
         repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,6 +34,10 @@ def run_git_sync(commit_message):
         
         # git commit
         subprocess.run(["git", "commit", "-m", commit_message], cwd=repo_dir, check=True)
+        
+        # git pull --rebase (先拉取远程更改并变基)
+        logging.info("正在同步远程更改...")
+        subprocess.run(["git", "pull", "--rebase"], cwd=repo_dir, check=True)
         
         # git push
         subprocess.run(["git", "push"], cwd=repo_dir, check=True)
