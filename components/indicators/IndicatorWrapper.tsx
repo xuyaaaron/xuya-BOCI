@@ -32,7 +32,7 @@ export const IndicatorWrapper: React.FC<IndicatorWrapperProps> = ({
           <span className="font-bold text-gray-900">免责声明：</span>
           仅为客观数据，不代表分析师观点和投资建议，投资信息和风险提示以正式报告为准。本内容向特定客户发布
         </p>
-        <p className="text-sm text-gray-600 font-bold">资料来源：万得，中银证券</p>
+        <p className="text-sm text-gray-600 font-bold">资料来源：万得，太平桥策略</p>
       </div>
     </div>
   );

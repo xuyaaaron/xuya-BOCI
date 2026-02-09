@@ -8,6 +8,7 @@ from flask_cors import CORS
 import subprocess
 import logging
 import os
+import json
 
 app = Flask(__name__)
 CORS(app)  # 允许跨域请求
@@ -89,6 +90,38 @@ def trigger_update():
             "status": "error",
             "message": str(e)
         }), 500
+
+@app.route('/api/records', methods=['GET'])
+def get_records():
+    """Get all PWA records"""
+    try:
+        # File is stored in the same directory as this script
+        record_file = os.path.join(os.path.dirname(__file__), 'pwa_records.json')
+        if not os.path.exists(record_file):
+             return jsonify([])
+        with open(record_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        logging.error(f"Failed to read records: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/records', methods=['POST'])
+def save_records():
+    """Save PWA records (overwrite)"""
+    try:
+        data = request.json
+        if not isinstance(data, list):
+            return jsonify({"error": "Data must be a list"}), 400
+        
+        record_file = os.path.join(os.path.dirname(__file__), 'pwa_records.json')
+        with open(record_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+            
+        return jsonify({"status": "success", "count": len(data)})
+    except Exception as e:
+        logging.error(f"Failed to save records: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

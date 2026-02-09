@@ -51,7 +51,7 @@ echo # 5. 验证GZIP
 echo curl -H "Accept-Encoding: gzip" -I http://110.40.129.184/static_data.json ^| grep -i content-encoding
 echo.
 echo ======================================================================
-echo 详细说明请查看: NGINX_DEPLOY_GUIDE.md
+echo 详细说明请查看: docs\NGINX_DEPLOY_GUIDE.md
 echo ======================================================================
 echo.
 pause
