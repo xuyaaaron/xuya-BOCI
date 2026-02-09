@@ -101,7 +101,7 @@ export const StandardIndicatorView: React.FC<Props> = ({ subTabId, label, onHead
           </div>
         )}
 
-        <div style={{ width: '100%', height: 600 }}>
+        <div style={{ width: '100%', height: 500 }}>
           <ResponsiveContainer>
             <ComposedChart data={chartData} margin={{ top: 30, right: 30, left: -10, bottom: 40 }}>
               <defs>

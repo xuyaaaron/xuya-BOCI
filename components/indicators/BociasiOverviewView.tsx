@@ -149,7 +149,7 @@ export const BociasiOverviewView: React.FC<{ onHeaderDataUpdate: (data: any) => 
                     </div>
                 )}
 
-                <div style={{ width: '100%', height: 650 }}>
+                <div style={{ width: '100%', height: 500 }}>
                     <ResponsiveContainer>
                         <ComposedChart data={chartData} margin={{ top: 30, right: 30, left: -10, bottom: 40 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

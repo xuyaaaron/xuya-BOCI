@@ -21,15 +21,12 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
   return (
     <header className="bg-white sticky top-0 z-50 shadow-sm md:shadow-md transition-all duration-300">
       {/* Top Bar: Compact App Bar Style for Mobile */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 h-[56px] md:h-[64px] flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 h-[48px] md:h-[52px] flex items-center justify-between">
         {/* Left: Logo & Title */}
         <div className="flex items-center gap-3 md:gap-4">
-          <div className="flex flex-col">
-            <div className="flex items-center text-[#333333]">
-              <h1 className="text-lg md:text-xl font-bold tracking-tight leading-none text-gray-900">太平桥策略</h1>
-            </div>
-            {/* Subtitle hidden on mobile for cleaner look */}
-            <span className="hidden md:block text-[10px] text-gray-400 font-medium tracking-tight mt-0.5">Interesting Datasets</span>
+          <div className="flex flex-row items-baseline gap-3">
+            <h1 className="text-lg md:text-xl font-bold tracking-tight leading-none text-gray-900">太平桥策略</h1>
+            <span className="text-[10px] text-gray-400 font-medium tracking-tight">Interesting Datasets</span>
           </div>
         </div>
 
