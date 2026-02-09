@@ -32,6 +32,21 @@ export const DashboardHeader: React.FC<HeaderProps> = ({
 
         {/* Right: Actions (Icons on Mobile, Text on Desktop) */}
         <div className="flex items-center gap-3 md:gap-8">
+          {/* Logout Button */}
+          <button
+            className="flex items-center gap-1 text-gray-400 hover:text-red-700 transition-colors"
+            onClick={() => {
+              if (confirm("确定要退出吗？")) {
+                localStorage.removeItem('pwa_authenticated');
+                window.location.reload();
+              }
+            }}
+            title="退出登录"
+          >
+            <span className="material-symbols-outlined text-[18px]">logout</span>
+            <span className="text-[11px] font-medium hidden md:inline">退出</span>
+          </button>
+
           {/* Contact Button */}
           <button
             className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors"
