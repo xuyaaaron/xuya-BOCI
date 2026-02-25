@@ -1,0 +1,25 @@
+总行数(nrows=2220): 2220
+
+行2190~2200 (date | close | AF | DC | DD):
+  pandas_row=2188 Excel_row=2189: datetime.datetime(2015, 12, 25, 0, 0) | 5066.93 | nan | nan | nan
+  pandas_row=2189 Excel_row=2190: datetime.datetime(2015, 12, 28, 0, 0) | 4932.3325 | nan | nan | nan
+  pandas_row=2190 Excel_row=2191: datetime.datetime(2015, 12, 29, 0, 0) | 4985.5973 | nan | nan | nan
+  pandas_row=2191 Excel_row=2192: datetime.datetime(2015, 12, 30, 0, 0) | 5023.4174 | nan | nan | nan
+  pandas_row=2192 Excel_row=2193: datetime.datetime(2015, 12, 31, 0, 0) | 4949.1953 | nan | nan | nan
+  pandas_row=2193 Excel_row=2194: datetime.datetime(2016, 1, 4, 0, 0) | 4534.4075 | nan | nan | nan
+  pandas_row=2194 Excel_row=2195: datetime.datetime(2016, 1, 5, 0, 0) | 4482.7447 | nan | nan | nan
+  pandas_row=2195 Excel_row=2196: datetime.datetime(2016, 1, 6, 0, 0) | 4595.6297 | nan | nan | nan
+  pandas_row=2196 Excel_row=2197: datetime.datetime(2016, 1, 7, 0, 0) | 4208.3515 | nan | nan | nan
+  pandas_row=2197 Excel_row=2198: datetime.datetime(2016, 1, 8, 0, 0) | 4270.3716 | nan | nan | nan
+  pandas_row=2198 Excel_row=2199: datetime.datetime(2016, 1, 11, 0, 0) | 3982.3778 | nan | nan | nan
+  pandas_row=2199 Excel_row=2200: datetime.datetime(2016, 1, 12, 0, 0) | 3991.9486 | nan | nan | nan
+  pandas_row=2200 Excel_row=2201: datetime.datetime(2016, 1, 13, 0, 0) | 3861.0293 | nan | nan | nan
+  pandas_row=2201 Excel_row=2202: datetime.datetime(2016, 1, 14, 0, 0) | 3986.1576 | nan | nan | nan
+  pandas_row=2202 Excel_row=2203: datetime.datetime(2016, 1, 15, 0, 0) | 3836.0848 | nan | nan | nan
+  pandas_row=2203 Excel_row=2204: datetime.datetime(2016, 1, 18, 0, 0) | 3890.478 | nan | nan | nan
+  pandas_row=2204 Excel_row=2205: datetime.datetime(2016, 1, 19, 0, 0) | 4038.1686 | nan | nan | nan
+  pandas_row=2205 Excel_row=2206: datetime.datetime(2016, 1, 20, 0, 0) | 3989.1423 | nan | nan | nan
+  pandas_row=2206 Excel_row=2207: datetime.datetime(2016, 1, 21, 0, 0) | 3829.41 | nan | nan | nan
+  pandas_row=2207 Excel_row=2208: datetime.datetime(2016, 1, 22, 0, 0) | 3886.3969 | nan | nan | nan
+  pandas_row=2208 Excel_row=2209: datetime.datetime(2016, 1, 25, 0, 0) | 3924.3307 | nan | nan | nan
+  pandas_row=2209 Excel_row=2210: datetime.datetime(2016, 1, 26, 0, 0) | 3631.7779 | nan | nan | nan
