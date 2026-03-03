@@ -23,30 +23,67 @@ logging.basicConfig(
     ]
 )
 
-def run_git_sync(commit_message):
-    """执行Git同步：add -> commit -> pull -> push"""
+def run_git_sync(commit_message, timeout=30, max_retries=2):
+    """执行Git同步：add -> commit -> pull -> push
+    
+    Args:
+        commit_message: 提交信息
+        timeout: 每条git命令的超时秒数（默认30s）
+        max_retries: 网络操作（pull/push）的最大重试次数
+    Returns:
+        True 表示完全成功，False 表示失败或仅本地提交成功
+    """
+    logging.info("开始Git同步...")
+    repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    # ---- 本地操作（不依赖网络）----
     try:
-        logging.info("开始Git同步...")
-        repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        
-        # git add
-        subprocess.run(["git", "add", "."], cwd=repo_dir, check=True)
-        
-        # git commit
-        subprocess.run(["git", "commit", "-m", commit_message], cwd=repo_dir, check=True)
-        
-        # git pull --rebase (先拉取远程更改并变基)
-        logging.info("正在同步远程更改...")
-        subprocess.run(["git", "pull", "--rebase"], cwd=repo_dir, check=True)
-        
-        # git push
-        subprocess.run(["git", "push"], cwd=repo_dir, check=True)
-        
-        logging.info("Git同步完成")
-        return True
+        subprocess.run(["git", "add", "."], cwd=repo_dir, check=True, timeout=timeout)
+        result = subprocess.run(
+            ["git", "commit", "-m", commit_message],
+            cwd=repo_dir, capture_output=True, text=True, timeout=timeout
+        )
+        if result.returncode not in (0, 1):  # 1 = nothing to commit，不算错误
+            logging.error(f"git commit 失败: {result.stderr.strip()}")
+            return False
+        logging.info("本地提交完成")
     except subprocess.CalledProcessError as e:
-        logging.error(f"Git操作失败: {e}")
+        logging.error(f"本地Git操作失败: {e}")
         return False
+    except subprocess.TimeoutExpired:
+        logging.error("git add/commit 超时")
+        return False
+
+    # ---- 网络操作（带重试）----
+    for attempt in range(1, max_retries + 1):
+        try:
+            logging.info(f"正在同步远程更改 (第{attempt}次尝试)...")
+            subprocess.run(
+                ["git", "pull", "--rebase"],
+                cwd=repo_dir, check=True, timeout=timeout
+            )
+            subprocess.run(
+                ["git", "push"],
+                cwd=repo_dir, check=True, timeout=timeout
+            )
+            logging.info("Git同步完成")
+            return True
+        except subprocess.TimeoutExpired:
+            logging.warning(f"网络操作超时 (第{attempt}次)，连接 GitHub 超过 {timeout}s")
+        except subprocess.CalledProcessError as e:
+            logging.warning(f"网络操作失败 (第{attempt}次): {e}")
+
+        if attempt < max_retries:
+            logging.info("等待5秒后重试...")
+            import time
+            time.sleep(5)
+
+    logging.error(
+        "GitHub 同步失败：无法连接到 github.com。\n"
+        "  → 本地提交已保存，下次运行时会自动合并推送。\n"
+        "  → 如需手动推送，请执行: git push"
+    )
+    return False
 
 async def generate_static_snapshot():
     """生成静态数据快照 (复用 generate_static.py 的逻辑)"""
@@ -82,11 +119,11 @@ async def generate_static_snapshot():
 
         for ind_id in indicators:
             data = await bociasi_service.fetch_indicator_data(ind_id, start_date, end_date)
-            static_data["bociasi"][ind_id] = data.dict()
+            static_data["bociasi"][ind_id] = data.model_dump()
 
         # 2. 获取 Wind 2X ERP 数据
         data = await wind2x_service.fetch_indicator_data("erp_2x", "2005-01-01", end_date)
-        static_data["wind_2x_erp"] = data.dict()
+        static_data["wind_2x_erp"] = data.model_dump()
 
         # 3. 写入文件
         repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
